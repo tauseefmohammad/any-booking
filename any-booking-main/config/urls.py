@@ -11,6 +11,7 @@ admin.site.index_title = 'Manage Bookings & Services'
 urlpatterns = [
     path('admin/dashboard/', DashboardView.as_view(), name='admin_dashboard'),
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),          # ← NEW: all Flutter API endpoints
     path('', include('services.urls')),
     path('bookings/', include('bookings.urls')),
     path('payments/', include('payments.urls')),

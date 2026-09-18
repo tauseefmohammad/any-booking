@@ -4,15 +4,23 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(DEBUG=(bool, False))
-environ.Env.read_env(BASE_DIR / '.env')
+environ.Env.read_env(str(BASE_DIR / ".env"))
 
-SECRET_KEY = env('SECRET_KEY')
-DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+SECRET_KEY = env("SECRET_KEY")
+DEBUG = env("DEBUG")
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "10.0.2.2"]
+
 CSRF_TRUSTED_ORIGINS = [
-    f'https://{host}' for host in ALLOWED_HOSTS
-    if host not in ('*', 'localhost') and not host.startswith('127.')
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
 
 INSTALLED_APPS = [
     "unfold",
@@ -22,6 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',        # ← NEW: Django REST Framework
+    'corsheaders',           # ← NEW: Allow Flutter to call Django
+    'api',                   # ← NEW: API app for Flutter
     'services',
     'bookings',
     'vendors',
@@ -123,6 +134,7 @@ UNFOLD = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',    # ← NEW: must be near the top
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -213,3 +225,19 @@ ADMIN_NOTIFY_EMAIL = env('ADMIN_NOTIFY_EMAIL', default='')
 
 # Public site base URL — used to build links in emails
 SITE_URL = env('SITE_URL', default='http://127.0.0.1:8000')
+
+# ── REST Framework ────────────────────────────────────────────────────────────
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
+# ── CORS (allows Flutter app to call Django API) ──────────────────────────────
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+CORS_ALLOW_ALL_ORIGINS = True  # Safe for development only

@@ -54,6 +54,16 @@ class City(models.Model):
     is_active = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False, help_text='Show on home page city cards')
     image = models.ImageField(upload_to='cities/', blank=True)
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6,
+        null=True, blank=True,
+        help_text='GPS latitude for location detection'
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6,
+        null=True, blank=True,
+        help_text='GPS longitude for location detection'
+    )
 
     class Meta:
         unique_together = ('district', 'name')
